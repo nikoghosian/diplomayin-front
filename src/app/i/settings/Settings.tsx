@@ -9,6 +9,7 @@ import { TypeUserForm } from '@/types/auth.types'
 
 import { useInitialData } from './useInitialData'
 import { useUpdateSettings } from './useUpdateSettings'
+import { useDeleteAccount } from './useDeleteAccount'
 
 export function Settings() {
 	const { register, handleSubmit, reset } = useForm<TypeUserForm>({
@@ -18,7 +19,7 @@ export function Settings() {
 	useInitialData(reset)
 
 	const { isPending, mutate } = useUpdateSettings()
-
+const { deleteAccount } = useDeleteAccount()
 	const onSubmit: SubmitHandler<TypeUserForm> = data => {
 		const { password, ...rest } = data
 
@@ -31,10 +32,10 @@ export function Settings() {
 	return (
 		<div>
 			<form
-				className='w-2/4'
+				className='w-3/4'
 				onSubmit={handleSubmit(onSubmit)}
 			>
-				<div className='grid grid-cols-2 gap-10'>
+				<div className='grid grid-cols-2 gap-10 grid-repeat-2'>
 					<div>
 						<Field
 							id='email'
@@ -44,7 +45,7 @@ export function Settings() {
 							{...register('email', {
 								required: 'Email is required!'
 							})}
-							extra='mb-4'
+							extra='mb-5'
 						/>
 
 						<Field
@@ -52,7 +53,7 @@ export function Settings() {
 							label='Name: '
 							placeholder='Enter name: '
 							{...register('name')}
-							extra='mb-4'
+							extra='mb-5'
 						/>
 
 						<Field
@@ -61,42 +62,42 @@ export function Settings() {
 							placeholder='Enter password: '
 							type='password'
 							{...register('password')}
-							extra='mb-10'
+							extra='mb-5'
 						/>
 					</div>
 
 					<div>
 						<Field
 							id='workInterval'
-							label='Work interval (min.): '
-							placeholder='Enter work interval (min.): '
+							label='Work interval : '
+							placeholder='Enter work interval : '
 							isNumber
 							{...register('workInterval', {
 								valueAsNumber: true
 							})}
-							extra='mb-4'
+							extra='mb-5'
 						/>
 
 						<Field
 							id='breakInterval'
-							label='Break interval (min.): '
-							placeholder='Enter break interval (min.): '
+							label='Break interval : '
+							placeholder='Enter break interval : '
 							isNumber
 							{...register('breakInterval', {
 								valueAsNumber: true
 							})}
-							extra='mb-4'
+							extra='mb-5'
 						/>
 
 						<Field
 							id='intervalsCount'
-							label='Intervals count (max 10): '
-							placeholder='Enter intervals count (max 10): '
+							label='Intervals count : '
+							placeholder='Enter intervals count : '
 							isNumber
 							{...register('intervalsCount', {
 								valueAsNumber: true
 							})}
-							extra='mb-6'
+							extra='mb-5'
 						/>
 					</div>
 				</div>
@@ -107,6 +108,14 @@ export function Settings() {
 				>
 					Save
 				</Button>
+				<Button
+					type='button'
+					className='ml-[245px] hover:bg-red-600 '
+					onClick={() => deleteAccount()}
+				>
+					Delete
+				</Button>
+
 			</form>
 		</div>
 	)

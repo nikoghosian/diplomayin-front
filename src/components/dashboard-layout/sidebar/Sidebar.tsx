@@ -22,8 +22,7 @@ export function Sidebar() {
 						size={38}
 					/>
 					<span className='text-2xl font-bold relative'>
-						Tasks
-						
+						Task Managment
 					</span>
 				</Link>
 				<div className='p-3 relative'>
@@ -37,8 +36,8 @@ export function Sidebar() {
 				</div>
 			</div>
 			<footer className='text-xs opacity-40 font-normal text-center p-layout'>
-				2024 &copy; With love from{' '}
-				. <br /> All rights reserved.
+				2025 &copy; With love from <br /> Vahe Nikoghosyan <br />
+				 All rights reserved.
 			</footer>
 		</aside>
 	)

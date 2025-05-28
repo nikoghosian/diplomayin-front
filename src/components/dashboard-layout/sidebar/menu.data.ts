@@ -1,3 +1,4 @@
+import Groups2Icon from '@mui/icons-material/Groups2'
 import {
 	CalendarRange,
 	KanbanSquare,
@@ -15,6 +16,11 @@ export const MENU: IMenuItem[] = [
 		icon: LayoutDashboard,
 		link: DASHBOARD_PAGES.HOME,
 		name: 'Dashboard'
+	},
+	{
+		icon: Groups2Icon,
+		link: DASHBOARD_PAGES.TEAMS,
+		name: 'Team'
 	},
 	{
 		icon: KanbanSquare,
