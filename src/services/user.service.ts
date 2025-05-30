@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import { IUser, TypeUserForm } from '@/types/auth.types'
 
 import { axiosWithAuth } from '@/api/interceptors'
@@ -13,7 +15,7 @@ export interface IProfileResponse {
 class UserService {
 	private BASE_URL = '/user/profile'
 
-	async getProfile() {
+	async getProfile(): Promise<IProfileResponse> {
 		try {
 			const response = await axiosWithAuth.get<IProfileResponse>(this.BASE_URL)
 			return response.data
@@ -23,13 +25,10 @@ class UserService {
 				error.response?.status === 401 ||
 				error.response?.status === 403
 			) {
-				localStorage.removeItem('token')
-				if (typeof window !== 'undefined') {
-					window.location.href = '/auth' 
-				}
+				localStorage.removeItem('accessToken')
+				throw new Error('Unauthorized')
 			}
-
-			throw error 
+			throw error
 		}
 	}
 

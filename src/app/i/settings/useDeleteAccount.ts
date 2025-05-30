@@ -1,11 +1,13 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { userService } from '@/services/user.service'
 
 export function useDeleteAccount() {
+	const [isPending, setIsPending] = useState(false)
 	const router = useRouter()
 
 	const handleDelete = async () => {
@@ -15,6 +17,7 @@ export function useDeleteAccount() {
 
 		if (!confirmed) return
 
+		setIsPending(true)
 		try {
 			await userService.deleteAccount()
 
@@ -35,10 +38,13 @@ export function useDeleteAccount() {
 		} catch (error: any) {
 			console.error('Delete account error:', error)
 			toast.error(error?.message || 'Failed to delete account')
+		} finally {
+			setIsPending(false)
 		}
 	}
 
 	return {
-		deleteAccount: handleDelete
+		deleteAccount: handleDelete,
+		isPending
 	}
 }

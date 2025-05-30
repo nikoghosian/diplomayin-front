@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import {
   TeamSelect,
   useGetTeams,
@@ -12,58 +12,68 @@ import {
 import CircularProgress from '@mui/material/CircularProgress'
 import Box from '@mui/material/Box'
 import { toast } from 'sonner'
+import { Tabs, Tab } from '@mui/material'
 
 export default function TeamPage() {
   const { teams, isLoading, error } = useGetTeams()
 
-  const [selectedTeam, setSelectedTeam] = useState<TeamFormType | undefined>(undefined)
+  const [selectedTeam, setSelectedTeam] = useState<TeamFormType>()
   const [email, setEmail] = useState('')
   const [newTeamName, setNewTeamName] = useState('')
   const [creating, setCreating] = useState(false)
+  const [tabIndex, setTabIndex] = useState(0)
 
-  const handleInvite = async () => {
+  const handleInvite = useCallback(async () => {
     if (!email.trim() || !selectedTeam) {
-      toast.error('Пожалуйста, выберите команду и введите email')
+      toast.error('Please select a team and enter an email')
       return
     }
     try {
       await inviteToTeam(selectedTeam.id!, email.trim())
-      toast.success(`Приглашение успешно отправлено на ${email}`)
+      toast.success(`Invitation successfully sent to ${email}`)
       setEmail('')
     } catch (err: any) {
-      toast.error(err.message || 'Ошибка при отправке приглашения')
+      toast.error(err.message || 'Error sending invitation')
     }
-  }
+  }, [email, selectedTeam])
 
-  const handleRemove = async (userId: string) => {
-    if (!selectedTeam?.id) return
-    try {
-      await removeFromTeam(selectedTeam.id, userId)
-      setSelectedTeam({
-        ...selectedTeam,
-        members: selectedTeam.members?.filter((m) => m.id !== userId),
-      })
-      toast.success('Участник успешно удалён')
-    } catch (err: any) {
-      toast.error(err.message || 'Ошибка при удалении участника')
-    }
-  }
+  const handleRemove = useCallback(
+    async (userId: string) => {
+      if (!selectedTeam?.id) return
+      try {
+        await removeFromTeam(selectedTeam.id, userId)
+        setSelectedTeam((prev) =>
+          prev
+            ? {
+                ...prev,
+                members: prev.members?.filter((m) => m.id !== userId),
+              }
+            : prev
+        )
+        toast.success('Member successfully removed')
+      } catch (err: any) {
+        toast.error(err.message || 'Error removing member')
+      }
+    },
+    [selectedTeam]
+  )
 
-  const handleCreateTeam = async () => {
+  const handleCreateTeam = useCallback(async () => {
     if (!newTeamName.trim()) return
     setCreating(true)
     try {
       const createdTeam = await createTeam(newTeamName.trim())
       setSelectedTeam(createdTeam)
-      toast.success(`Команда "${createdTeam.name}" успешно создана`)
+      toast.success(`Team "${createdTeam.name}" successfully created`)
       setNewTeamName('')
-      // refetchTeams() убран, можно добавить обновление локального состояния команд, если нужно
     } catch (err: any) {
-      toast.error(err.message || 'Ошибка при создании команды')
+      toast.error(err.message || 'Error creating team')
     } finally {
       setCreating(false)
     }
-  }
+  }, [newTeamName])
+
+  const teamMembers = useMemo(() => selectedTeam?.members ?? [], [selectedTeam])
 
   if (isLoading)
     return (
@@ -72,88 +82,127 @@ export default function TeamPage() {
       </Box>
     )
 
-  if (error) return <div className="p-10 text-red-500">Ошибка: {error}</div>
+  if (error) return <div className="p-10 text-red-500">Error: {error}</div>
 
   return (
     <div className="p-10 min-h-screen text-black max-w-xl relative">
-      {/* Секция создания новой команды */}
-      <div className="mb-6 max-w-md">
-        <label className="text-sm font-semibold mb-1 block text-white">Создать новую команду:</label>
-        <input
-          type="text"
-          value={newTeamName}
-          onChange={(e) => setNewTeamName(e.target.value)}
-          placeholder="Название команды"
-          className="border border-gray-600 text-white rounded px-4 py-2 w-full mb-2"
-          style={{ background: 'var(--primary)' }}
-          disabled={creating}
-        />
-        <button
-          onClick={handleCreateTeam}
-          disabled={creating || !newTeamName.trim()}
-          className="bg-blue-700 hover:bg-blue-900 text-white py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {creating ? 'Создание...' : 'Создать команду'}
-        </button>
-      </div>
+      <Tabs
+        value={tabIndex}
+        onChange={(_, newValue) => setTabIndex(newValue)}
+        textColor="primary"
+        indicatorColor="primary"
+        sx={{
+          marginBottom: 4,
+          background: '#1f1f1f',
+          borderRadius: '8px',
+          '& .MuiTab-root': {
+            color: 'white',
+            minWidth: 120,
+            marginRight: '24px',
+          },
+          '& .MuiTab-root:last-child': {
+            marginRight: 0,
+          },
+        }}
+        centered
+      >
+        <Tab label="Select" />
+        <Tab label="Create" />
+        <Tab label="Invite" />
+      </Tabs>
 
-      {/* Выбор команды */}
-      <TeamSelect teams={teams} initialData={selectedTeam} onSelectTeam={setSelectedTeam} />
+      {/* TAB 1: Select team */}
+      {tabIndex === 0 && (
+        <div>
+          <TeamSelect teams={teams} initialData={selectedTeam} onSelectTeam={setSelectedTeam} />
+          {selectedTeam ? (
+            <>
+              <p className="text-white font-semibold mt-6">You selected team: {selectedTeam.name}</p>
+              {teamMembers.length > 0 ? (
+                <div className="mt-4">
+                  <h3 className="text-white font-bold mb-2">Team members:</h3>
+                  <ul className="space-y-2">
+                    {teamMembers.map((member) => (
+                      <li
+                        key={member.id}
+                        className="flex justify-between items-center bg-gray-800 text-white p-2 rounded"
+                      >
+                        <span>{member.name}</span>
+                        <button
+                          onClick={() => handleRemove(member.id)}
+                          className="text-red-400 hover:text-red-600 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                null
+              )}
+            </>
+          ) : (
+            <p className="text-white italic mt-4">Please select a team first</p>
+          )}
+        </div>
+      )}
 
-      <div className="mt-6 text-left text-lg">
-        {selectedTeam ? (
-          <>
-            <p className="text-white font-semibold mb-4">Вы выбрали команду: {selectedTeam.name}</p>
+      {/* TAB 2: Create team */}
+      {tabIndex === 1 && (
+        <div className="max-w-lg">
+          <label className="text-sm font-semibold mb-1 block text-white">Create a new team:</label>
+          <input
+            type="text"
+            value={newTeamName}
+            onChange={(e) => setNewTeamName(e.target.value)}
+            placeholder="Team name"
+            className="border border-gray-600 text-white rounded px-4 py-2 w-full mb-2"
+            style={{ background: 'var(--primary)' }}
+            disabled={creating}
+            autoFocus
+          />
+          <button
+            onClick={handleCreateTeam}
+            disabled={creating || !newTeamName.trim()}
+            className="bg-blue-700 hover:bg-blue-900 text-white py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {creating ? 'Creating...' : 'Create team'}
+          </button>
+        </div>
+      )}
 
-            <div className="flex flex-col gap-4 mb-6 max-w-md">
-              <label className="text-sm bg-black text-white">Email для приглашения:</label>
+      {/* TAB 3: Invite member */}
+      {tabIndex === 2 && (
+        <div className="max-w-lg">
+          <label className="text-sm font-semibold block mb-1 text-white">Select a team:</label>
+          <TeamSelect teams={teams} initialData={selectedTeam} onSelectTeam={setSelectedTeam} />
+
+          {selectedTeam ? (
+            <>
+              <label className="text-sm font-semibold block mt-4 mb-1 text-white">Email to invite:</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="border border-gray-600 text-white rounded px-4 py-2 placeholder-black focus:outline-none focus:ring-2 focus:ring-gray-700"
-                placeholder="Введите email"
+                className="border border-gray-600 text-white rounded px-4 py-2 w-full placeholder-black"
+                placeholder="Enter email"
                 style={{ background: 'var(--primary)' }}
+                autoFocus
               />
-
               <button
                 onClick={handleInvite}
-                className="bg-gray-700 hover:bg-gray-900 text-white py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-3 bg-gray-700 hover:bg-gray-900 text-white py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!email.trim() || !selectedTeam}
               >
-                Отправить приглашение
+                Send invitation
               </button>
-            </div>
-
-            {/* Список участников */}
-            {selectedTeam.members && selectedTeam.members.length > 0 ? (
-              <div className="mt-6">
-                <h3 className="text-white font-bold mb-2">Участники команды:</h3>
-                <ul className="space-y-2">
-                  {selectedTeam.members.map((member) => (
-                    <li
-                      key={member.id}
-                      className="flex justify-between items-center bg-gray-800 text-white p-2 rounded"
-                    >
-                      <span>{member.name}</span>
-                      <button
-                        onClick={() => handleRemove(member.id)}
-                        className="text-red-400 hover:text-red-600 text-sm"
-                      >
-                        Удалить
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : (
-              <p className="text-gray-400 italic mt-6">У команды нет участников</p>
-            )}
-          </>
-        ) : (
-          <p className="text-white italic">Сначала выберите команду</p>
-        )}
-      </div>
+            </>
+          ) : (
+            <p className="text-white italic mt-4">Please select a team first</p>
+          )}
+        </div>
+      )}
     </div>
   )
-}  
+}

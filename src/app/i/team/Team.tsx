@@ -48,7 +48,7 @@ export const TeamSelect: React.FC<TeamSelectProps> = ({ teams, onSelectTeam, ini
         className="w-full bg-[var(--primary)] text-white border border-gray-700 hover:bg-gray-600/30 border-opacity-30 rounded px-4 py-2 text-left focus:outline-none focus:ring-2 focus:ring-gray-500 flex justify-between items-center"
         onClick={() => setOpen(!open)}
       >
-        {selected ? selected.name : '-- Выберите --'}
+        {selected ? selected.name : 'Select a team'}
         <span className="ml-2 text-sm hover:bg-gray-600/30 select-none">▼</span>
       </button>
 
