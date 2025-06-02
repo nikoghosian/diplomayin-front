@@ -6,19 +6,23 @@ import { removeFromStorage, saveTokenStorage } from './auth-token.service'
 
 export const authService = {
 	async main(type: 'login' | 'register', data: IAuthForm) {
-  const response = await axiosClassic.post<IAuthResponse>(
-    `/auth/${type}`,
-    data
-  )
+		const response = await axiosClassic.post<IAuthResponse>(
+			`/auth/${type}`,
+			data
+		)
 
-  if (response.data.accessToken) {
-    saveTokenStorage(response.data.accessToken)
-  }
+		if (response.data.accessToken) {
+			saveTokenStorage(response.data.accessToken)
+		}
 
-  return response.data // ✅ <-- Это исправляет твою проблему!
-},
-
-
+		return response.data
+	},
+	async sendOtp(data: { email: string }) {
+		return axiosClassic.post('/auth/send-otp', data)
+	},
+	async verifyOtp(data: { email: string; code: string }) {
+		return axiosClassic.post('/auth/verify-otp', data)
+	},
 	async getNewTokens() {
 		const response = await axiosClassic.post<IAuthResponse>(
 			'/auth/login/access-token'

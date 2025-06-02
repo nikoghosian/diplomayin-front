@@ -4,54 +4,38 @@ import { BarChart } from '@mui/x-charts/BarChart'
 import { useProfile } from '../../hooks/useProfile'
 import CircularProgress from '@mui/material/CircularProgress'
 
-interface StatisticItem {
-  label: string
-  value: number
-  isDaily?: boolean
-}
-
-interface RawStatisticItem {
-  label: string
-  value: string | number
-  isDaily?: boolean
-}
-
-// Проверка, является ли строка датой в формате YYYY-MM-DD
-const isDateString = (str: string) => {
-  return /^\d{4}-\d{2}-\d{2}$/.test(str)
-}
-
-// Если это дата и она в будущем, то вернуть 'Later'
-const normalizeLabel = (label: string): string => {
-  if (isDateString(label)) {
-    const now = new Date()
-    const date = new Date(label)
-    if (date > now) {
-      return 'Later'
-    }
-  }
-  return label
-}
-
 export function Statistics() {
   const { data, isLoading } = useProfile()
 
   if (isLoading)
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
         <CircularProgress sx={{ color: 'white' }} />
       </div>
     )
 
   if (!data?.statistics?.length) return <div>Statistics not loaded!</div>
 
-  const rawData: StatisticItem[] = data.statistics.map((item: RawStatisticItem) => ({
-    label: normalizeLabel(String(item.label)),
-    value: Number(item.value),
-    isDaily: item.isDaily ?? false,
-  }))
+  const labels = data.statistics.map((item) => item.label)
 
-  const xCategories = rawData.map((item) => item.label)
+  // Отдельно отделяем Completed tasks
+  const completedItem = data.statistics.find((item) => item.label === 'Completed tasks')
+  const completedValue = completedItem ? completedItem.value : null
+
+  // Массивы для двух серий: остальные задачи и Completed
+  const otherData = data.statistics.map((item) =>
+    item.label !== 'Completed tasks' ? Number(item.value) : null
+  )
+  const completedData = data.statistics.map((item) =>
+    item.label === 'Completed tasks' ? Number(item.value) : null
+  )
 
   return (
     <div
@@ -59,17 +43,18 @@ export function Statistics() {
         backgroundColor: '#222',
         padding: 10,
         borderRadius: 8,
-        maxWidth: 600,
+        maxWidth: 5500,
         margin: 'auto',
+        marginTop: 100,
       }}
     >
       <BarChart
         xAxis={[
           {
             id: 'categories',
-            data: xCategories,
+            data: labels,
             scaleType: 'band',
-            tickLabelStyle: { fill: '#eee', fontSize: 12 },
+            tickLabelStyle: { fill: '#fff', fontSize: 12 },
           },
         ]}
         yAxis={[
@@ -80,14 +65,42 @@ export function Statistics() {
             tickLabelStyle: { fill: '#eee', fontSize: 12 },
           },
         ]}
+        grid={{
+          horizontal: true,
+          vertical: false,
+        }}
         series={[
           {
-            data: rawData.map((item) => item.value),
-            label: 'Statistics',
-            color: '#1976d2',
+            data: otherData,
+            label: '',
+            color: '#1976d2', // синий
+          },
+          {
+            data: completedData,
+            label: '',
+            color: '#4caf50', // зелёный для Completed tasks
           },
         ]}
         height={300}
+        sx={{
+          '& .MuiChartsAxis-line': {
+            stroke: 'white',
+            strokeWidth: 2,
+          },
+          '& .MuiChartsAxis-tick': {
+            stroke: '#9e9e9e',
+          },
+          '& .MuiChartsGrid-line': {
+            stroke: '#424242',
+            strokeDasharray: '3 3',
+          },
+        }}
+        margin={{
+          top: 20,
+          right: 30,
+          bottom: 40,
+          left: 65,
+        }}
       />
     </div>
   )

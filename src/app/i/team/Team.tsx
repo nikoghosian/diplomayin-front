@@ -43,28 +43,28 @@ export const TeamSelect: React.FC<TeamSelectProps> = ({ teams, onSelectTeam, ini
 
   return (
     <div className="relative w-full max-w-sm" ref={dropdownRef}>
-      <label className="block font-medium mb-2 text-white">Выберите команду:</label>
+      <label className="block font-medium mb-2 text-white">Select Team</label>
       <button
-        className="w-full bg-[var(--primary)] text-white border border-gray-700 hover:bg-gray-600/30 border-opacity-30 rounded px-4 py-2 text-left focus:outline-none focus:ring-2 focus:ring-gray-500 flex justify-between items-center"
+        className="w-full bg-[var(--primary)] text-white border border-gray-700 hover:bg-blue-700 border-opacity-60 rounded px-4 py-2 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex justify-between items-center"
         onClick={() => setOpen(!open)}
       >
         {selected ? selected.name : 'Select a team'}
-        <span className="ml-2 text-sm hover:bg-gray-600/30 select-none">▼</span>
+        <span className="ml-2 text-sm select-none">▼</span>
       </button>
 
       {open && (
-        <ul className="absolute z-10 mt-1 w-full bg-[#0e0f0f] border border-gray-700 border-opacity-30 rounded max-h-60 overflow-auto shadow-lg animate-fade">
+        <ul className="absolute z-10 mt-1 w-full bg-[#0e0f0f] border border-gray-700 border-opacity-50 rounded max-h-60 overflow-auto shadow-lg animate-fade">
           {teams.length === 0 ? (
             <li className="px-4 py-2 border-b border-gray-700 border-opacity-30 text-gray-400 cursor-default select-none">
-              Нет команд
+              No teams
             </li>
           ) : (
             teams.map((team, idx) => (
               <li
                 key={team.name}
                 onClick={() => handleSelect(team)}
-                className={`cursor-pointer px-4 py-2 hover:bg-gray-600/30 ${
-                  selected?.name === team.name ? 'bg-gray-700/30 font-semibold' : ''
+                className={`cursor-pointer px-4 py-2 hover:bg-blue-700 ${
+                  selected?.name === team.name ? 'bg-blue-800 font-semibold' : ''
                 } ${idx !== teams.length - 1 ? 'border-b border-gray-700 border-opacity-20' : ''}`}
               >
                 {team.name}
@@ -122,20 +122,20 @@ export function TeamForm({
 
   const handleInvite = async () => {
     if (!selectedTeam?.id) {
-      toast.error('Команда не выбрана')
+      toast.error('Team not selected')
       return
     }
     if (!inviteEmail || !inviteEmail.includes('@')) {
-      toast.error('Введите корректный email')
+      toast.error('Enter a valid email')
       return
     }
 
     try {
       await inviteToTeam(selectedTeam.id, inviteEmail)
-      toast.success('Приглашение отправлено')
+      toast.success('Invitation sent')
       setInviteEmail('')
     } catch (err: any) {
-      toast.error(err.message || 'Ошибка при приглашении')
+      toast.error(err.message || 'Error sending invitation')
     }
   }
 
@@ -144,23 +144,23 @@ export function TeamForm({
       <div className="mb-4 flex gap-2">
         <button
           type="button"
-          className={`px-4 py-2 rounded ${
-            mode === 'select' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'
+          className={`px-4 py-2 rounded transition-colors duration-200 ${
+            mode === 'select' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
           }`}
           onClick={() => setMode('select')}
           disabled={isPending}
         >
-          выбрать
+          Select
         </button>
         <button
           type="button"
-          className={`px-4 py-2 rounded ${
-            mode === 'create' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'
+          className={`px-4 py-2 rounded transition-colors duration-200 ${
+            mode === 'create' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
           }`}
           onClick={() => setMode('create')}
           disabled={isPending}
         >
-          Создать
+          Create
         </button>
       </div>
 
@@ -175,19 +175,19 @@ export function TeamForm({
 
           {selectedTeam && (
             <div className="mt-4">
-              <label className="block mb-1 text-white font-medium">Пригласить по email:</label>
+              <label className="block mb-1 text-white font-medium">Invite via email:</label>
               <input
                 type="email"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="email@example.com"
-                className="border border-gray-700 rounded px-3 py-2 w-full bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="border border-gray-700 rounded px-3 py-2 w-full bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 onClick={handleInvite}
-                className="mt-2 bg-green-600 text-white px-4 py-2 rounded"
+                className="mt-2 bg-green-600 hover:bg-green-700 transition-colors text-white px-4 py-2 rounded"
               >
-                Пригласить
+                Invite
               </button>
             </div>
           )}
@@ -197,28 +197,32 @@ export function TeamForm({
       {mode === 'create' && (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block font-medium mb-1">Название команды</label>
+            <label className="block font-medium mb-1">Team Name</label>
             <input
               type="text"
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="border border-gray-700 rounded px-3 py-2 w-full bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className="border border-gray-700 rounded px-3 py-2 w-full bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={isPending}
               required
             />
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" disabled={isPending}>
-              Сохранить
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 py-2 rounded"
+              disabled={isPending}
+            >
+              Save
             </button>
             <button
               type="button"
-              className="bg-red-600 text-white px-4 py-2 rounded"
+              className="bg-red-600 hover:bg-red-700 transition-colors text-white px-4 py-2 rounded"
               onClick={onDelete}
               disabled={isPending}
             >
-              Удалить
+              Delete
             </button>
           </div>
         </form>
@@ -240,8 +244,8 @@ export function useGetTeams() {
           const match = document.cookie.match(/(?:^|;\s*)accessToken=([^;]*)/)
           if (match) token = decodeURIComponent(match[1])
         }
-        if (!token) throw new Error('Токен не найден')
-console.log('TOKEN:', token)
+        if (!token) throw new Error('Token not found')
+        console.log('TOKEN:', token)
 
         const res = await fetch('http://localhost:4200/api/user/team', {
           method: 'GET',
@@ -250,13 +254,13 @@ console.log('TOKEN:', token)
             Authorization: `Bearer ${token}`,
           },
         })
-        if (!res.ok) throw new Error('Не удалось получить команды')
+        if (!res.ok) throw new Error('Failed to fetch teams')
 
         const data = await res.json()
         setTeams(data.map((team: { name: string; id: string }) => ({ name: team.name, id: team.id })))
       } catch (err: any) {
-        console.error('Ошибка при загрузке команд:', err)
-        toast.error(err.message || 'Ошибка при загрузке команд')
+        console.error('Error loading teams:', err)
+        toast.error(err.message || 'Error loading teams')
         setError(err.message)
       } finally {
         setIsLoading(false)
@@ -276,7 +280,7 @@ export async function inviteToTeam(teamId: string, email: string) {
       const match = document.cookie.match(/(?:^|;\s*)accessToken=([^;]*)/)
       if (match) accessToken = decodeURIComponent(match[1])
     }
-    if (!accessToken) throw new Error('Токен не найден')
+    if (!accessToken) throw new Error('Token not found')
 
     const res = await fetch(`http://localhost:4200/api/user/team-member/${teamId}/invite`, {
       method: 'POST',
@@ -289,12 +293,12 @@ export async function inviteToTeam(teamId: string, email: string) {
 
     if (!res.ok) {
       const errorData = await res.json()
-      throw new Error(errorData.message || 'Ошибка при приглашении')
+      throw new Error(errorData.message || 'Error sending invitation')
     }
 
     return await res.json()
   } catch (error) {
-    console.error('Ошибка при приглашении в команду:', error)
+    console.error('Error inviting to team:', error)
     throw error
   }
 }
@@ -302,17 +306,12 @@ export async function inviteToTeam(teamId: string, email: string) {
 export async function removeFromTeam(teamId: string, userId: string) {
   const response = await fetch(`http://localhost:4200/api/user/team-member/${teamId}/${userId}`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
   })
-
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.message || 'Не удалось удалить участника')
+    throw new Error('Failed to remove user from team')
   }
+  return response.json()
 }
-
 export async function createTeam(name: string) {
   try {
     let accessToken = localStorage.getItem('accessToken')
@@ -336,36 +335,9 @@ export async function createTeam(name: string) {
       throw new Error(err.message || 'Ошибка при создании команды')
     }
 
-    return await res.json() // Возвращаем созданную команду
+    return await res.json() 
   } catch (e: any) {
     toast.error(e.message || 'Ошибка при создании команды')
-    throw e
-  }
-}
-
-export async function deleteTeam(id: string) {
-  try {
-    let accessToken = localStorage.getItem('accessToken')
-    if (!accessToken) {
-      const match = document.cookie.match(/(?:^|;\s*)accessToken=([^;]*)/)
-      if (match) accessToken = decodeURIComponent(match[1])
-    }
-    if (!accessToken) throw new Error('Токен не найден')
-
-    const res = await fetch(`http://localhost:4200/api/user/team/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.message || 'Ошибка при удалении команды')
-    }
-  } catch (e: any) {
-    toast.error(e.message || 'Ошибка при удалении команды')
     throw e
   }
 }

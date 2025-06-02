@@ -20,6 +20,7 @@ export function ListView() {
 					<div>Task name</div>
 					<div>Due date</div>
 					<div>Priority</div>
+					<div>Progress</div>
 					<div></div>
 				</div>
 

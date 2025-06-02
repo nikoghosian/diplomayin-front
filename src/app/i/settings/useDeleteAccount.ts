@@ -21,11 +21,9 @@ export function useDeleteAccount() {
 		try {
 			await userService.deleteAccount()
 
-			// Удаляем токены и очищаем хранилище
 			localStorage.removeItem('token')
 			sessionStorage.clear()
 
-			// Чистим куки вручную
 			const cookies = document.cookie.split(';')
 			for (const cookie of cookies) {
 				const name = cookie.trim().split('=')[0]
@@ -33,7 +31,6 @@ export function useDeleteAccount() {
 				document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`
 			}
 
-			// Перенаправляем на авторизацию
 			window.location.href = '/auth'
 		} catch (error: any) {
 			console.error('Delete account error:', error)

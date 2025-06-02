@@ -13,9 +13,17 @@ export interface IUser {
 	intervalsCount?: number
 }
 
+export interface IOtpForm {
+	email: string
+	onSuccess: (accessToken: string) => void
+	onCancel: () => void
+}
+
 export interface IAuthResponse {
 	accessToken: string
 	user: IUser
+	otpRequired?: boolean
+	email?: string
 }
 
 export type TypeUserForm = Omit<IUser, 'id'> & { password?: string }

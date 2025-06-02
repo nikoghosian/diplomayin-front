@@ -32,10 +32,8 @@ export function useTimer(): ITimerState {
 	}, [isRunning, secondsLeft, workInterval, activeRound])
 
 	useEffect(() => {
-		// Ранний выход, если время не истекло
 		if (secondsLeft > 0) return
 
-		// Переключение режима и установка нового времени одной операцией
 		setIsBreakTime(!isBreakTime)
 		setSecondsLeft((isBreakTime ? workInterval : breakInterval) * 60)
 	}, [secondsLeft, isBreakTime, workInterval, breakInterval])

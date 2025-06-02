@@ -23,7 +23,6 @@ export function useTaskDebounce({ watch, itemId }: IUseTaskDebounce) {
 		[]
 	)
 
-	// Теперь debouncedUpdateTask будет сохраняться между рендерами, и debounce будет работать как ожидается.
 	const debouncedUpdateTask = useCallback(
 		debounce((formData: TypeTaskFormState) => {
 			updateTask({ id: itemId, data: formData })
@@ -37,6 +36,22 @@ export function useTaskDebounce({ watch, itemId }: IUseTaskDebounce) {
 				debouncedUpdateTask({
 					...formData,
 					priority: formData.priority || undefined
+				})
+			} else {
+				debouncedCreateTask(formData)
+			}
+		})
+
+		return () => {
+			unsubscribe()
+		}
+	}, [watch(), debouncedUpdateTask, debouncedCreateTask])
+	useEffect(() => {
+		const { unsubscribe } = watch(formData => {
+			if (itemId) {
+				debouncedUpdateTask({
+					...formData,
+					progress: formData.progress || undefined
 				})
 			} else {
 				debouncedCreateTask(formData)

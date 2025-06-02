@@ -40,11 +40,8 @@ export function useTimeBlockDnd(
 			const newIndex = items.findIndex(item => item.id === (over?.id || ''))
 
 			if (oldIndex !== -1 && newIndex !== -1) {
-				// Создаем новый отсортированный массив
 				const newItems = arrayMove(items, oldIndex, newIndex)
-				// Обновляем состояние
 				setItems(newItems)
-				// Обновляем порядок на сервере
 				mutate(newItems.map(item => item.id))
 			}
 		}

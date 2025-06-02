@@ -45,9 +45,7 @@ export default function AcceptInvitePage() {
         toast.success(data.message || 'Приглашение принято!')
         router.push('/team')
       } catch (err: any) {
-        // Обработка ошибки "приглашение уже использовано"
         if (err.message === 'Invite already used' || err.message === 'Приглашение уже использовано') {
-          // Не показываем ошибку, просто редиректим
           router.push('/team')
         } else {
           toast.error(err.message || 'Ошибка при принятии приглашения.')

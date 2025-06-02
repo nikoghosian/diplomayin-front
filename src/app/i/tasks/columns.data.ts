@@ -1,11 +1,7 @@
 import dayjs, { type Dayjs } from 'dayjs'
 import 'dayjs/locale/ru'
-// подключение локали, если она вам нужна
 import isoWeek from 'dayjs/plugin/isoWeek'
-// ISO неделя
 import weekOfYear from 'dayjs/plugin/weekOfYear'
-
-// плагин для работы с неделями
 
 dayjs.extend(weekOfYear)
 dayjs.extend(isoWeek)

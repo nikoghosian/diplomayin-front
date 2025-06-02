@@ -2,7 +2,11 @@
 	@apply w-full;
 
 	.header {
-		@apply grid grid-cols-[1.4fr_.4fr_.4fr_.1fr];
+		// @apply grid grid-cols-[1.4fr_.4fr_.4fr_.1fr];
+		// @apply grid grid-cols-[5.2fr_.1.5fr_.1.6fr_.1.8fr];
+		@apply grid grid-cols-[5.2fr_1.5fr_1.6fr_1.8fr];
+
+
 	}
 
 	.header,

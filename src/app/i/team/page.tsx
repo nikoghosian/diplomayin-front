@@ -108,17 +108,18 @@ export default function TeamPage() {
       >
         <Tab label="Select" />
         <Tab label="Create" />
-        <Tab label="Invite" />
       </Tabs>
 
-      {/* TAB 1: Select team */}
       {tabIndex === 0 && (
         <div>
           <TeamSelect teams={teams} initialData={selectedTeam} onSelectTeam={setSelectedTeam} />
+
           {selectedTeam ? (
             <>
-              <p className="text-white font-semibold mt-6">You selected team: {selectedTeam.name}</p>
-              {teamMembers.length > 0 ? (
+              {/* <p className="text-white font-semibold mt-6">You selected team: {selectedTeam.name}</p> */}
+
+              {/* Team members list */}
+              {teamMembers.length > 0 && (
                 <div className="mt-4">
                   <h3 className="text-white font-bold mb-2">Team members:</h3>
                   <ul className="space-y-2">
@@ -138,9 +139,28 @@ export default function TeamPage() {
                     ))}
                   </ul>
                 </div>
-              ) : (
-                null
               )}
+
+              {/* Invite form */}
+              <div className="max-w-lg mt-6">
+                <label className="text-sm font-semibold block mb-1 text-white">Email to invite:</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="border border-gray-600 text-white rounded px-4 py-2 w-full placeholder-black"
+                  placeholder="Enter email"
+                  style={{ background: 'var(--primary)' }}
+                  autoFocus
+                />
+                <button
+                  onClick={handleInvite}
+                  className="mt-3 bg-gray-700 hover:bg-gray-900 text-white py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!email.trim() || !selectedTeam}
+                >
+                  Send invitation
+                </button>
+              </div>
             </>
           ) : (
             <p className="text-white italic mt-4">Please select a team first</p>
@@ -148,7 +168,6 @@ export default function TeamPage() {
         </div>
       )}
 
-      {/* TAB 2: Create team */}
       {tabIndex === 1 && (
         <div className="max-w-lg">
           <label className="text-sm font-semibold mb-1 block text-white">Create a new team:</label>
@@ -169,38 +188,6 @@ export default function TeamPage() {
           >
             {creating ? 'Creating...' : 'Create team'}
           </button>
-        </div>
-      )}
-
-      {/* TAB 3: Invite member */}
-      {tabIndex === 2 && (
-        <div className="max-w-lg">
-          <label className="text-sm font-semibold block mb-1 text-white">Select a team:</label>
-          <TeamSelect teams={teams} initialData={selectedTeam} onSelectTeam={setSelectedTeam} />
-
-          {selectedTeam ? (
-            <>
-              <label className="text-sm font-semibold block mt-4 mb-1 text-white">Email to invite:</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="border border-gray-600 text-white rounded px-4 py-2 w-full placeholder-black"
-                placeholder="Enter email"
-                style={{ background: 'var(--primary)' }}
-                autoFocus
-              />
-              <button
-                onClick={handleInvite}
-                className="mt-3 bg-gray-700 hover:bg-gray-900 text-white py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!email.trim() || !selectedTeam}
-              >
-                Send invitation
-              </button>
-            </>
-          ) : (
-            <p className="text-white italic mt-4">Please select a team first</p>
-          )}
         </div>
       )}
     </div>
